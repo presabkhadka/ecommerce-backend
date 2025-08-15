@@ -35,8 +35,8 @@ model Products {
   type      ProductType
   stock     Int
   available Boolean
-  discount  Float
-  ratings   Float
+  discount  Float?
+  ratings   Float?
   Orders    Orders[]
 }
 
