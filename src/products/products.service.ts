@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { addProductDto } from './dto/add-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { updateProductDto } from './dto/update-product.dto';
@@ -98,7 +98,8 @@ export class ProductsService {
       data: {
         stock: {
           increment: dto.stock
-        }
+        },
+        available: true
       }
     })
 

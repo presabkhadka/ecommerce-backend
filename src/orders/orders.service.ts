@@ -10,30 +10,41 @@ export class OrdersService {
 
   // for creating a order
   async addOrder(dto: addOrderDto) {
-    const productExists = await this.prismaSerivce.products.findFirst({
+    const productExists = await this.prismaSerivce.products.findUniqueOrThrow({
       where: {
         id: dto.productId
       }
     })
 
-    if (!productExists) {
-      throw new NotFoundException('No such product found')
+    if (productExists.available = false) {
+      throw new BadRequestException('Product out of stock')
     }
 
     if (productExists.stock < dto.quantity) {
       throw new BadRequestException('Cannot place order with quantity more than product stock')
     }
 
-    await this.prismaSerivce.products.update({
+    const updatedProduct = await this.prismaSerivce.products.update({
       where: {
         id: dto.productId
       },
       data: {
         stock: {
           decrement: dto.quantity
-        }
+        },
       }
     })
+
+    if (updatedProduct.stock === 0) {
+      await this.prismaSerivce.products.update({
+        where: {
+          id: updatedProduct.id
+        },
+        data: {
+          available: false
+        }
+      })
+    }
 
     const createOrder = await this.prismaSerivce.orders.create({
       data: dto
