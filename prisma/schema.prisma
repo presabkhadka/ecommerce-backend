@@ -19,6 +19,13 @@ enum OrderType {
   EPAYMENT
 }
 
+enum OrderStatus {
+  PROCESSING
+  ON_THE_WAY
+  DELIVERED
+  CANCELED
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   name          String
@@ -41,11 +48,12 @@ model Products {
 }
 
 model Orders {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  productId  Int
-  quantity   Int
-  order_type OrderType
+  id           Int          @id @default(autoincrement())
+  userId       Int
+  productId    Int
+  quantity     Int
+  order_type   OrderType
+  order_status OrderStatus?
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
