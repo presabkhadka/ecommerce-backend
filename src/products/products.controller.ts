@@ -9,6 +9,8 @@ import { deleteProductSchema } from './dto/delete-product.dto';
 import type { deleteProductDto } from './dto/delete-product.dto';
 import { fetchProductSchema } from './dto/fetch-product.dto';
 import type { fetchProductDto } from './dto/fetch-product.dto';
+import { addStockSchema } from './dto/add-stock.dto';
+import type { addStockDto } from './dto/add-stock.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -50,6 +52,15 @@ export class ProductsController {
     @Param('id', ParseIntPipe) dto: deleteProductDto
   ) {
     return this.productsService.deleteProduct(dto)
+  }
+
+  @Patch(':id')
+  @UsePipes(new ZodValidationPipe(addStockSchema))
+  addStock(
+    @Body() dto: addStockDto,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.productsService.addStock(id, dto)
   }
 
 }

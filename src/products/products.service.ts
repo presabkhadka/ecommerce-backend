@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { addProductDto } from './dto/add-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { updateProductDto } from './dto/update-product.dto';
 import { deleteProductDto } from './dto/delete-product.dto';
 import type { fetchProductDto } from './dto/fetch-product.dto';
+import type { addStockDto } from './dto/add-stock.dto';
 
 @Injectable()
 export class ProductsService {
@@ -11,8 +12,8 @@ export class ProductsService {
     private readonly prismaService: PrismaService
   ) { }
 
+  // for adding product
   async addProduct(dto: addProductDto) {
-
     const newProduct = await this.prismaService.products.create({
       data: dto
     })
@@ -24,8 +25,8 @@ export class ProductsService {
 
   }
 
+  // for updating the product
   async updateProduct(dto: updateProductDto) {
-
     const updatedProduct = await this.prismaService.products.updateMany({
       where: {
         name: dto.name
@@ -40,6 +41,7 @@ export class ProductsService {
 
   }
 
+  // for fetching the product 
   async fetchProduct() {
     const fetchedProduct = await this.prismaService.products.findMany()
     return {
@@ -48,6 +50,7 @@ export class ProductsService {
     }
   }
 
+  // for fetching a single product
   async fetchSingleProduct(dto: fetchProductDto) {
     const fetchedProduct = await this.prismaService.products.findFirst({
       where: {
@@ -60,17 +63,13 @@ export class ProductsService {
     }
   }
 
+  // for deleting the product
   async deleteProduct(dto: deleteProductDto) {
-
-    const productExists = await this.prismaService.products.findFirst({
+    await this.prismaService.products.findUniqueOrThrow({
       where: {
         id: dto
       }
     })
-
-    if (!productExists) {
-      throw new BadRequestException('No such product found')
-    }
 
     const deletedProduct = await this.prismaService.products.delete({
       where: {
@@ -84,4 +83,28 @@ export class ProductsService {
     }
   }
 
+  // for adding product stock
+  async addStock(id: number, dto: addStockDto) {
+    await this.prismaService.products.findUniqueOrThrow({
+      where: {
+        id: id
+      }
+    })
+
+    const addStock = await this.prismaService.products.update({
+      where: {
+        id: id
+      },
+      data: {
+        stock: {
+          increment: dto.stock
+        }
+      }
+    })
+
+    return {
+      message: 'Stock added successfully',
+      data: addStock
+    }
+  }
 }
